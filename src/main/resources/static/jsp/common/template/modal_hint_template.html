@@ -1,0 +1,26 @@
+<div class="modal fade" data-backdrop="static" id="{{modalId}}" tabindex="-1" role="dialog">
+    <!--单击背景时不关闭: data-backdrop="static"-->
+    <div class="modal-dialog modal-{{size}}" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="position: relative;">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title"><span ng-bind="title"></span></h4>
+            </div>
+            <div class="modal-body form-horizontal" ng-click="modalBodyClick()">
+                <div ng-transclude="body"></div>
+            </div>
+            <div class="modal-footer">
+                <span ng-show="action==='confirm'">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" ng-click='submit()'>
+                        <span class="icon-ok m-r"></span>&nbsp;确定
+                    </button>
+                </span>
+                <span ng-show="action==='hint'">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+                </span>
+                <span ng-transclude="footer"></span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>video页面</title>
+
+
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+</head>
+<body>
+    <h1>搜索页面</h1>
+    <div>
+        <label>关键词：</label>
+        <input id="username" name="username" type="text" placeholder="请输入用用户名">
+    </div>
+    <div>
+        <label>用户id：</label>
+        <input id="userId" name="username" type="text" placeholder="请输入用用户名">
+    </div>
+    <div>
+        <label>平台：</label>
+        <select id="platform" name="platform">
+            <option value="1">youtube</option>
+            <option value="2">西瓜视频</option>
+            <option value="3">B站</option>
+        </select>
+    </div>
+    <button id="btn">搜素</button>
+</body>
+<script type="text/javascript">
+    $(function () {
+        $("#btn").click(function () {
+            var username = $('#username').val();
+            var platform = $('#platform').val();
+            var userId = $('#userId').val();
+            $.post("/Bili/getListByUserName",{'username':username,'userId':userId},function (data) {
+                alert("访问成功")
+                console.info(data);
+            })
+        })
+    })
+</script>
+</html>

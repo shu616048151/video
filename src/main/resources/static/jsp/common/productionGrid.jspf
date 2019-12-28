@@ -1,0 +1,27 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<div class="clearfix">
+    <div ng-repeat="row in page.list" >
+        <ul class="clearfix goods-list item item-ad" >
+            <a href="/jsp/production/newProduction/showProduction.jsp?id={{row.id}}" role="listitem" aria-posinset="0" aria-setsize="6" class="">
+                <div class="img-wrapper">
+                    <img class="a-all" src="{{row.production.picture.url}}" aria-labelledby="dg-item-tl-0">
+                </div>
+                <div>
+                    <h4 class="a-all" id="dg-item-tl-0">{{row.production.productName}}</h4>
+                    <span>评价数:&nbsp;{{row.production.properties.totalRemark}}</span>
+                    <span>好评数:&nbsp;{{row.production.properties.positiveRemark}}</span>
+                    <span>量产率:&nbsp;{{row.production.properties.productionRate}}</span><br/>
+                    <span class="outline">体验说明:&nbsp;{{row.production.outline}}</span><br/>
+                    <span>限申请:&nbsp;{{row.production.properties.total}}</span>
+                    <span>已申请:&nbsp;{{row.production.properties.applied}}</span>
+                    <span>剩余量:&nbsp;{{row.production.properties.surplus}}</span><br/>
+                    <span class="new">原价:&nbsp;{{row.production.properties.originalPrice}}</span>
+                    <span class="old">现价:&nbsp;{{row.production.properties.currentPrice}}</span>
+                    <%--<p>直筒版型剪裁，穿着大方又得体。&nbsp</p>--%>
+                    <%--<p class="extra"><span class="tb-ifont"></span>2 人说好</p>--%>
+                </div>
+            </a>
+        </ul>
+    </div>
+</div>
+<%@include file="page.jspf" %>

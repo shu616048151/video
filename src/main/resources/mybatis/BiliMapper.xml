@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shu.smallvideo.mapper.BiliMapper">
+
+    <resultMap id="videoRM" type="com.shu.smallvideo.vo.VideoVo">
+        <id property="id" column="id"></id>
+        <result property="user" column="user"></result>
+        <result property="username" column="username"></result>
+        <result property="platform" column="platform" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"></result>
+        <result property="title" column="title"></result>
+        <result property="url" column="url"></result>
+        <result property="time" column="time"></result>
+        <result property="timeLength" column="time_length"></result>
+        <result property="photoThumb" column="photo_thumb"></result>
+    </resultMap>
+
+    <select id="getListByUserName" parameterType="string" resultMap="videoRM">
+      select  * from bili where username like '%${username}%'
+    </select>
+
+    <select id="getListByUserNameAndId" parameterType="map" resultMap="videoRM">
+      select * from bili where user=#{id} and username like '%${username}%'
+    </select>
+
+    <select id="getAllListByUserName" parameterType="map" resultMap="videoRM">
+      select * from bili where username like '%${username}%'
+    </select>
+
+    <update id="updatePlayById" parameterType="map">
+        update bili set play=#{play},update_time=#{updateTime} where id=#{id}
+    </update>
+
+
+
+</mapper>

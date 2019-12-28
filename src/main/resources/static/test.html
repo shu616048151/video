@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>指标图管理</title>
+    <!--<%&#45;&#45;基础css&#45;&#45;%>-->
+    <link href="/jsp/common/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/jsp/common/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/jsp/common/css/bootstrap-extend.css" rel="stylesheet">
+    <link href="/jsp/common/css/validate.css" rel="stylesheet">
+    <!--<%&#45;&#45;基础js&#45;&#45;%>-->
+    <script src="/jsp/common/js/jquery.min.js"></script>
+    <script src="/jsp/common/js/bootstrap.min.js"></script>
+    <script src="/jsp/common/js/angular.min.js"></script>
+    <script src="/jsp/common/js/ng-file-upload-all.min.js"></script>
+    <!--<%&#45;&#45;自定义angular module&#45;&#45;%>-->
+    <script src="/jsp/common/template/baseModule.js"></script>
+    <!--<%&#45;&#45;日期处理&#45;&#45;%>-->
+    <link href="/jsp/common/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <script src="/jsp/common/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/jsp/common/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="/jsp/common/js/moment.min.js"></script>
+</head>
+<body ng-app="m" ng-controller="c" ng-init='index = "模块角色";subIndex = "账号管理"'>
+<div class="container" style="width:98%">
+    <div class="panel panel-default m-t-lg">
+        <div class="panel-heading">
+            <h4>解码历史</h4>
+        </div>
+        <div class="clearfix m-b">
+            <form action="" class="form-inline">
+                <div class="form-group m-f">
+                    <label for="userId">用户ID</label>
+                    <input ng-model="userId" type="text" class="form-control m-l" placeholder="用户ID">
+                </div>
+                <div class="form-group m-f">
+                    <label for="gender">性别</label>
+                    <select ng-model="gender" class="form-control m-l">
+                        <option  value="">请选择</option>
+                        <option value="0">男</option>
+                        <option value="1">女</option>
+                    </select>
+                </div>
+                <div class="form-group m-f">
+                    <label for="quotas">指标</label>
+                    <select class="form-control m-l" ng-model="selectq" ng-options="quota for (index,quota) in quotas">
+                        <option value="">请选择</option>
+                    </select>
+                </div>
+                <div class="form-group m-f">
+                    <label for="quotas">标签</label>
+                    <input ng-model="content" type="text" class="form-control m-l" placeholder="标签名">
+                </div>
+                <button class="btn btn-primary m-f" type="button"  ng-click="search()"  >
+                    <span class="icon-search m-r"></span> 搜索
+                </button>
+                <button class="btn btn-primary" type="submit">
+                    <span class="icon-download m-r"></span> 批量下载
+                </button>
+            </form>
+        </div>
+    </div>
+    <!--<%@ include file="/jsp/common/table.jspf" %>-->
+</div>
+<!--<%&#45;&#45;<script src="/jsp/quotas/js/quotas.js"></script>&#45;&#45;%>-->
+<script>
+    // angular.module("m",[])
+    //     .controller("c",function($scope,page,$filter,ajax){
+    //         $scope.quotas = ["油脂","黑色素","毛孔","美白度","色斑","纹理","血色素","紫质","皱纹","紫外斑"];
+    //         console.log("aaa");
+    //         //加载数据
+    //             $scope.load = function (current, size, orderBy, asc) {
+    //                 ajax.ajax("/user/redirect/image/image/quotasImage/getQuotasImageList", "POST",
+    //                     {
+    //                         userId: $scope.userId,
+    //                         current: current,
+    //                         size: size,
+    //                         gender: $scope.gender,
+    //                         content:$scope.content,
+    //                         orderBy: orderBy,
+    //                         asc: asc,
+    //                         selectq:$scope.selectq,
+    //                        // type: $scope.searchType
+    //                         type: 0
+    //                     }).success(function (data) {
+    //                     console.log(data);
+    //                     if (data.success) {
+    //                         console.info("开始检测");
+    //                         console.log(data)
+    //                         $scope.page.refreshPage(data);
+    //                     }else{
+    //                        alert(data.message);
+    //                     }
+    //                 })
+    //             };
+    //             //搜索的函数实现方式
+    //             $scope.search=function(){
+    //                 //console.log("开始测试搜索");
+    //                $scope.load(1,15,"createTime",false);
+    //             };
+    //
+    //             $scope.page = page.page($scope.load, "createTime", false);
+    //             $scope.ths = [
+    //                 {
+    //                     name: "图片",
+    //                     img:function(row){
+    //                         return row.url;
+    //                     },
+    //                     width: "10%"
+    //                 }, {
+    //                     name: "用户ID",
+    //                     value: function (row) {
+    //                         return row.userId;
+    //                     },
+    //                     width: "10%"
+    //                 }, {
+    //                     name: "性别",
+    //                     value: function (row) {
+    //                         return row.gender;
+    //                     },
+    //                     width: "5%"
+    //                 }, {
+    //                     name: "指标",
+    //                     value: function (row) {
+    //                         return row.quota;
+    //                     },
+    //                     width: "8%"
+    //                 }, {
+    //                     name: "检测值",
+    //                     value: function (row) {
+    //                         return row.score;
+    //                     },
+    //                     width: "10%"
+    //                 }, {
+    //                     name: "等级",
+    //                     value: function (row) {
+    //                         return row.grade;
+    //                     },
+    //                     width: "10%"
+    //                 }, {
+    //                     name: "标签",
+    //                     value: function (row) {
+    //                         var  labelList=row.labelList;
+    //                         var labels="";
+    //                         if (labelList!=null&&labelList.length>0){
+    //                             for (var i=0;i<labelList.length;i++){
+    //                                 labels=labels+labelList[i].content+" ";
+    //                             }
+    //                             //console.log(labels);
+    //                         }
+    //                         return labels;
+    //                     },
+    //                     width: "15%"
+    //                 }, {
+    //                     name: "评级时间",
+    //                     value: function (row) {
+    //                         return $filter("fmtDateYMDHMSsub")(row.createTime);
+    //                     },
+    //                     orderBy: "createTime",
+    //                     width: "20%"
+    //                 }
+    //             ];
+    //             $scope.operations = [
+    //                 {
+    //                     name: function () {
+    //                         return "查看报告";
+    //                     },
+    //                     clas: function (row) {
+    //                         return {
+    //                             "btn btn-xs btn-default": true
+    //                         };
+    //                     },
+    //                     click: function (row) {
+    //                         //跳转到另外一个页面
+    //                         window.open("/jsp/reports/reportDetail.jsp?detectionId="+row.id+"&userId="+row.userId);
+    //                     }
+    //                 }
+    //             ];
+    //         $scope.$watch('$viewContentLoaded', function () {
+    //             $scope.page.refreshTo(1);
+    //         });
+    //     });
+</script>
+</body>
+</html>
+
