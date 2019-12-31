@@ -1,7 +1,6 @@
 package com.shu.smallvideo.mapper;
 
 import com.shu.smallvideo.base.ParamsMap;
-import com.shu.smallvideo.model.vo.BiliVo;
 import com.shu.smallvideo.model.vo.VideoVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,12 +12,11 @@ import java.util.List;
  * @uint d9lab
  * @Description:
  */
-public interface BiliMapper {
+public interface XiGuaMapper {
 
     List<VideoVo> getListByUserName(@Param("username") String username)throws  Exception;
 
     List<VideoVo> getAllList()throws  Exception;
-
 
     Integer updatePlayById(ParamsMap map)throws Exception;
 
@@ -28,10 +26,4 @@ public interface BiliMapper {
     List<VideoVo> getAllListByUserName(ParamsMap map)throws Exception;
 
     Integer updateTimeById(ParamsMap map)throws Exception;
-
-    Integer addBili(BiliVo bili)throws Exception;
-
-    BiliVo getBiliByAid(Integer aid);
-
-    void updateBiliByAid(BiliVo biliVo);
 }

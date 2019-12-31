@@ -1,4 +1,4 @@
-package com.shu.smallvideo.vo;
+package com.shu.smallvideo.model.vo;
 
 import com.shu.smallvideo.base.Platform;
 import com.shu.smallvideo.model.Play;

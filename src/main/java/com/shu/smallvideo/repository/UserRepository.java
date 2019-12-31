@@ -16,7 +16,9 @@ import java.util.List;
  */
 @Repository
 public interface UserRepository extends CrudRepository<User,Integer> {
-   List<User> findByUserName(String usernName);
+   List<User> findByUserName(String userName);
    @Query(value = "select * from user where username like  CONCAT('%',?1,'%')",nativeQuery = true)
-   List<User> findByUserNameLike(String usernName);
+   List<User> findByUserNameLike(String userName);
+
+    User findByMid(Integer mid);
 }

@@ -1,8 +1,7 @@
 package com.shu.smallvideo.service;
 
-import com.shu.smallvideo.model.Video;
-import com.shu.smallvideo.vo.PlayVo;
-import com.shu.smallvideo.vo.VideoVo;
+import com.shu.smallvideo.model.vo.PlayVo;
+import com.shu.smallvideo.model.vo.VideoVo;
 
 import java.util.List;
 
@@ -18,4 +17,6 @@ public interface BiliService {
     List<VideoVo> updatePlayByUserName(String username) throws Exception;
 
     PlayVo countMonthPlay(String username,Integer userId) throws Exception;
+
+    Integer biliSearchByMid(Integer mid)throws Exception;
 }

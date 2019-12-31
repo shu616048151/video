@@ -1,4 +1,4 @@
-package com.shu.smallvideo.vo;
+package com.shu.smallvideo.model.vo;
 
 import com.shu.smallvideo.base.Platform;
 
@@ -19,6 +19,7 @@ public class VideoVo {
     String time;
     String timeLength;
     String photoThumb;
+    String uploadTime;
 
     public Integer getId() {
         return id;
@@ -98,5 +99,13 @@ public class VideoVo {
 
     public void setPlatform(Platform platform) {
         this.platform = platform;
+    }
+
+    public String getUploadTime() {
+        return uploadTime;
+    }
+
+    public void setUploadTime(String uploadTime) {
+        this.uploadTime = uploadTime;
     }
 }

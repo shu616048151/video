@@ -2,6 +2,9 @@ package com.shu.smallvideo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shu.smallvideo.base.Platform;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,9 +17,12 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "user")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     @Column(name = "username")
     String userName;
@@ -29,45 +35,15 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     Platform platform;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "mid")
+    Integer mid;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
+    public User(String userName, Date createTime, String department, Platform platform, Integer mid) {
         this.userName = userName;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
         this.department = department;
-    }
-
-    public Platform getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(Platform platform) {
         this.platform = platform;
+        this.mid = mid;
     }
 }
 

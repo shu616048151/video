@@ -2,7 +2,7 @@ package com.shu.smallvideo.controller;
 
 import com.shu.smallvideo.model.User;
 import com.shu.smallvideo.repository.UserRepository;
-import com.shu.smallvideo.vo.VideoVo;
+import com.shu.smallvideo.model.vo.VideoVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 

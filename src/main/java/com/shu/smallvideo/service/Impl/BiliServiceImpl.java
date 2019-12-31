@@ -1,21 +1,30 @@
 package com.shu.smallvideo.service.Impl;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.shu.smallvideo.base.ParamsMap;
-import com.shu.smallvideo.controller.BiliController;
+import com.shu.smallvideo.base.Platform;
 import com.shu.smallvideo.mapper.BiliMapper;
+import com.shu.smallvideo.model.Bili;
 import com.shu.smallvideo.model.Play;
-import com.shu.smallvideo.model.Video;
+import com.shu.smallvideo.model.User;
+import com.shu.smallvideo.model.vo.BiliVo;
+import com.shu.smallvideo.repository.UserRepository;
 import com.shu.smallvideo.service.BiliService;
-import com.shu.smallvideo.vo.PlayVo;
-import com.shu.smallvideo.vo.VideoVo;
+import com.shu.smallvideo.model.vo.PlayVo;
+import com.shu.smallvideo.model.vo.VideoVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.security.Key;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,11 +36,15 @@ import java.util.regex.Pattern;
  * @Description:
  */
 @Service
+@Transactional
 public class BiliServiceImpl implements BiliService {
     private static Logger logger= LoggerFactory.getLogger(BiliServiceImpl.class);
 
     @Autowired
     private BiliMapper biliMapper;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<VideoVo> getListByUserName(String username) throws Exception {
@@ -50,6 +63,131 @@ public class BiliServiceImpl implements BiliService {
         List<VideoVo> videoVoList = getListByUserNameAndId(username,userId);
         PlayVo playVo = countMonthPlay(videoVoList,username,userId);
         return playVo;
+    }
+
+    @Override
+    public Integer biliSearchByMid(Integer mid) throws Exception {
+        Integer page = spiderPage(mid, 30, 1, "");
+        Integer user=null;
+        for (int i=1;i<=page;i++){
+            List<Bili> bilis = spiderVideo(mid, 30, i, "");
+            if (bilis!=null&&bilis.size()>0){
+                for (Bili bili : bilis) {
+                    BiliVo biliVo = new BiliVo().convertFrom(bili);
+                    biliVo.setPlatform(Platform.BiliBili);
+                    biliVo.setUrl("https://www.bilibili.com/video/av"+biliVo.getAid());
+                    String author = bili.getAuthor();
+                    if (user==null||user==0){
+                        List<User> userList = userRepository.findByUserName(author);
+                        if (userList!=null&&userList.size()>0){
+                            for (User userObject : userList) {
+                                Platform platform = userObject.getPlatform();
+                                if (platform==Platform.BiliBili){
+                                    user=userObject.getId();
+                                    break;
+                                }
+                            }
+                        }else {
+                            User user2=new User(author,new Date(),Platform.BiliBili.getName(),Platform.BiliBili,mid);
+                            user2= userRepository.save(user2);
+                            user=user2.getId();
+                            logger.info("user:"+user);
+                        }
+                    }
+                    userRepository.findByUserName(author);
+                    biliVo.setUser(user);
+                    biliVo.setCreateTime(new Date());
+                    biliVo.setUpdateTime(new Date());
+                    if (biliVo.getPlay().matches("[0-9]+")){
+                        //播放量正常的数据，视频没有被删除
+                        saveOrUpdate(biliVo);
+                    }
+                }
+            }
+        }
+        return 1;
+    }
+
+    /**
+     * 用户存储和更新数据
+     * @param biliVo
+     */
+    private void saveOrUpdate(BiliVo biliVo) throws Exception {
+        BiliVo biliVoNew=biliMapper.getBiliByAid(biliVo.getAid());
+        if (biliVoNew!=null){
+            biliMapper.updateBiliByAid(biliVo);
+        }else {
+            biliMapper.addBili(biliVo);
+        }
+
+    }
+
+    /**
+     *
+     * @param mid  作者的mid
+     * @param ps 每页条数
+     * @param pn 页码
+     * @param keyword 搜素关键词
+     * @return
+     */
+    public  List<Bili> spiderVideo(long mid, int ps, int pn, String keyword){
+        List<Bili> bilis=new ArrayList<>();
+        StringBuilder stringBuilder=new StringBuilder();
+        stringBuilder.append("https://api.bilibili.com/x/space/arc/search")
+                .append("?mid="+mid)
+                .append("&ps="+ps)
+                .append("&tid=0")
+                .append("&pn="+pn)
+                .append("&keyword="+keyword)
+                .append("&order=pubdate&jsonp=jsonp");
+        String url = stringBuilder.toString();
+        System.out.println(url);
+        HttpRequest httpRequest = HttpUtil.createGet(url);
+        HttpResponse execute = httpRequest.execute();
+        if (execute.getStatus()==200){
+            String body = execute.body();
+            JSON parse = JSONUtil.parse(body);
+            Object data = parse.getByPath("data");
+            JSONObject dataObject = JSONUtil.parseObj(data);
+            Object list = dataObject.get("list");
+            JSON parse1 = JSONUtil.parse(list);
+            JSONArray jsonArray1 = JSONUtil.parseArray(parse1.getByPath("vlist"));
+            logger.info("vlist:"+jsonArray1);
+            bilis= jsonArray1.toList(Bili.class);
+            logger.info("spiderVideo的bilis大小："+bilis.size());
+        }
+        return bilis;
+    }
+
+    public  Integer spiderPage(long mid, int ps, int pn, String keyword){
+        Integer countNum=0;
+        StringBuilder stringBuilder=new StringBuilder();
+        stringBuilder.append("https://api.bilibili.com/x/space/arc/search")
+                .append("?mid="+mid)
+                .append("&ps="+ps)
+                .append("&tid=")
+                .append("&pn="+pn)
+                .append("&keyword="+keyword)
+                .append("&order=pubdate&jsonp=jsonp");
+        String url = stringBuilder.toString();
+        System.out.println(url);
+        HttpRequest httpRequest = HttpUtil.createGet(url);
+        HttpResponse execute = httpRequest.execute();
+        if (execute.getStatus()==200){
+            String body = execute.body();
+            JSON parse = JSONUtil.parse(body);
+            Object data = parse.getByPath("data");
+
+            JSONObject jsonObject = JSONUtil.parseObj(data);
+            Object page = jsonObject.get("page");
+            System.out.println(jsonObject.get("page"));
+
+            JSON parse2 = JSONUtil.parse(page);
+            String count = parse2.getByPath("count").toString();
+            countNum=Integer.parseInt(count)/ps+1;
+            System.out.println("总共："+countNum);
+        }
+        return countNum;
     }
 
     private List<VideoVo> getListByUserNameAndId(String username,Integer id) throws Exception {
@@ -100,7 +238,7 @@ public class BiliServiceImpl implements BiliService {
         }
         List<Play> playList=new ArrayList<>();
         for (VideoVo video : videos) {
-            String time = video.getTime();
+            String time = video.getUploadTime();
             boolean b = time.matches("^[0-9]{4}.*");
             if (!b){
                 Calendar calendar=Calendar.getInstance();
@@ -111,13 +249,14 @@ public class BiliServiceImpl implements BiliService {
             if (playMap.containsKey(month)){
                 Double num = playMap.get(month);
                 String play = video.getPlay();
-                Double PlayNum=Double.valueOf(play.substring(0,play.lastIndexOf("万")));
+//                Double PlayNum=Double.valueOf(play.substring(0,play.lastIndexOf("万")));
+                Double PlayNum=Double.valueOf(play);
                 Double totalNum=num+PlayNum;
                 playMap.put(month,totalNum);
                 videoNumMap.put(month,videoNumMap.get(month)+1);
             }else{
                 String play = video.getPlay();
-                Double PlayNum=Double.valueOf(play.substring(0,play.lastIndexOf("万")));
+                Double PlayNum=Double.valueOf(play);
                 playMap.put(month,PlayNum);
                 videoNumMap.put(month,1);
             }
